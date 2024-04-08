@@ -1,0 +1,56 @@
+.Button{
+    background-color: #4CAF50;
+    border: none;
+    color: black;
+    padding: 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px auto;
+    cursor: pointer;
+    max-width: 100px;
+    border-radius: 10px;
+}
+
+.Button_modify{
+    background-color: yellow;
+}
+
+.Button_delete{
+    background-color: #f44336;
+}
+
+.Button:hover{
+    background-color: #45a049;
+}
+.Button:active{
+    background-color: #45a049;
+}
+
+.Button:disabled{
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.Button:disabled:hover{
+    background-color: #cccccc;
+}
+
+.Button:disabled:active{
+    background-color: #cccccc;
+}
+
+.Button_modify:hover{
+    background-color: #b0e025;
+}
+.Button_modify:active{
+    background-color: #b0e025;
+}
+
+.Button_delete:hover{
+    background-color: #d32f2f;
+}
+.Button_delete:active{
+    background-color: #d32f2f;
+}
