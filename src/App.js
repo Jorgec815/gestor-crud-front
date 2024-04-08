@@ -11,7 +11,6 @@ import {
   getConcesionarios,
   deleteTransaccion,
   postTransaccion,
-  putTransaccion,
 } from './utilities/endpoints/transacciones';
 
 function App() {
