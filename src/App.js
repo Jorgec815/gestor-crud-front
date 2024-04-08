@@ -8,7 +8,6 @@ import axios from 'axios';
 
 function App() {
   const [activeForm, setActiveForm] = useState('disabled');
-  const [valueToModify, setValueToModify] = useState(null);
   const [transacciones, setTransacciones] = useState([]);
   const [marcas, setMarcas] = useState([]);
   const [modelos, setModelos] = useState([]);
@@ -68,19 +67,6 @@ function App() {
       })
   }
 
-  // const deleteTransaction = (id) => {
-  //   axios.delete(baseUrl + '/Transacciones/' + id).then(() => {
-  //     setActiveForm('disabled');
-  //   }).catch(() => {
-  //     alert('Error al eliminar la transacción');
-  //   });
-  // }
-
-  // const handleModify = (id) => {
-  //   setActiveForm('modify');
-  //   setValueToModify(transacciones.find((element) => element.transaccionId === id));
-  // }
-
   return (
     <div className="App">
       <Header title="Administrador de Ventas" />
@@ -103,19 +89,6 @@ function App() {
               onSubmit={(e) => sendTransaction(e)}/>
           )
         }
-        { activeForm === 'modify' && (
-          <Form
-            type={'modify'}
-            title='Modificar Venta'
-            brands={[valueToModify.vehiculo.marca]}
-            models={[valueToModify.vehiculo.modelo]}
-            concessionaires={[valueToModify.concesionario.nombre]}
-            clients={[valueToModify.cliente.nombre]}
-            date={valueToModify.fechaVenta}
-            price={valueToModify.precioVenta}
-            onSubmit={(e) => sendTransaction(e)}
-          />
-        )}
         { activeForm !== 'disabled' && (
           <Button label='Cancelar' type='delete' onClick={() => setActiveForm('disabled')} />
         )}
