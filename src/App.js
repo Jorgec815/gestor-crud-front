@@ -4,14 +4,7 @@ import Header from './components/Header/default';
 import Table from './components/table/default';
 import Button from './components/button/deafult';
 import Form from './components/form/default';
-import {
-  getTransacciones,
-  getVehiculos,
-  getClientes,
-  getConcesionarios,
-  deleteTransaccion,
-  postTransaccion,
-} from './utilities/endpoints/transacciones';
+import axios from 'axios';
 
 function App() {
   const [activeForm, setActiveForm] = useState('disabled');
@@ -22,93 +15,71 @@ function App() {
   const [vehiculos, setVehiculos] = useState([]);
   const [clientes, setClientes] = useState([]);
   const [concesionarios, setConcesionarios] = useState([]);
-  const generateButtons = (id) => {
-    return (
-      <React.Fragment>
-        <Button label={'Editar'} type={'modify'} onClick={() => handleEdit(id)} />
-        <Button label={'Eliminar'} type={'delete'} onClick={() => handleDelete(id)} />
-      </React.Fragment>
-    )
-  }
-
-  const fetchTransacciones = async () => {
-    await getTransacciones().then((response) => {
-      response.forEach((element) => {
-        element.acciones = generateButtons(element.transaccionId);
-      });
-      setTransacciones(response);
-    });
-  }
-
-  const fetchVehiculos = async () => {
-    await getVehiculos().then((response) => {
-      const brands = [];
-      const models = [];
-      response.forEach((element) => {
-        if (!brands.includes(element.marca)) {
-          brands.push(element.marca);
-        }
-        setMarcas(brands);
-        if (!models.includes(element.modelo)) {
-          models.push(element.modelo);
-        }
-        setModelos(models);
-        setVehiculos(response);
-      });
-    });
-  }
-
-  const fetchClientes = async () => {
-    await getClientes().then((response) => {
-      setClientes(response);
-    });
-  }
-
-  const fetchConcesionarios = async () => {
-    await getConcesionarios().then((response) => {
-      setConcesionarios(response);
-    });
-  }
+  const baseUrl = 'https://gestor-transacciones.somee.com/api';
 
   useEffect(() => {
-    fetchTransacciones();
+    const fetchTransacciones = async () => {
+      const result = await axios(
+        baseUrl + '/Transacciones',
+      );
+      setTransacciones(result.data);
+    }
+    const fetchVehiculos = async () => {
+      const result = await axios(
+        baseUrl + '/Vehiculos',
+      );
+      setVehiculos(result.data);
+      setMarcas(result.data.map((element) => element.marca));
+      setModelos(result.data.map((element) => element.modelo));
+    }
+    const fetchClientes = async () => {
+      const result = await axios(
+        baseUrl + '/Clientes',
+      );
+      setClientes(result.data);
+    }
+    const fetchConcesionarios = async () => {
+      const result = await axios(
+        baseUrl + '/Concesionarios',
+      );
+      setConcesionarios(result.data);
+    }
     fetchVehiculos();
     fetchClientes();
     fetchConcesionarios();
-  });
+    fetchTransacciones();
+  }, [])
 
-  const handleSubmit = async (e) => {
-    console.log('Submit: ', e.target.elements);
-    console.log('Vehiculos: ', vehiculos);
-    console.log('Clientes: ', clientes);
-    console.log('Concesionarios: ', concesionarios);
-    const vehicleId = vehiculos.find((element) => element.marca === e.target.elements.Marca.value && element.modelo === e.target.elements.Modelo.value).vehiculoId;
-    const clientId = clientes.find((element) => element.nombre === e.target.elements.NombreCliente.value).clienteId;
-    const concesionarioId = concesionarios.find((element) => element.nombre === e.target.elements.NombreConcesionario.value).concesionarioId;
+  const sendTransaction = (event) => {
     const json = {
-      "vehiculoId": vehicleId,
-      "clienteId": clientId,
-      "concesionarioId": concesionarioId,
-      "fechaVenta": e.target.elements.FechaVenta.value,
-      "precioVenta": e.target.elements.PrecioVenta.value,
+      "vehiculoId": vehiculos.find(el => el.marca === event.target.elements.Marca.value && el.modelo === event.target.elements.Modelo.value).vehiculoId,
+      "clienteId": clientes.find(el => el.nombre === event.target.elements.NombreCliente.value).clienteId,
+      "concesionarioId": concesionarios.find(el => el.nombre === event.target.elements.NombreConcesionario.value).concesionarioId,
+      "fechaVenta": event.target.elements.FechaVenta.value,
+      "precioVenta": event.target.elements.PrecioVenta.value,
     }
-    await postTransaccion(json).then(() => {
-      fetchTransacciones();
-    });
-
-    setActiveForm('disabled');
-  }
-  const handleEdit = (index) => {
-    console.log('Edit: ', transacciones);
-    setValueToModify(transacciones.find((element) => element.transaccionId === index));
-    setActiveForm('modify');
+    axios.post(baseUrl + '/Transacciones', json)
+      .then((response) => {
+        console.log(response);
+        setTransacciones([...transacciones, response.data]);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
   }
 
-  const handleDelete = async (index) => {
-    await deleteTransaccion(index).then(() => {
-      fetchTransacciones();
-    })
-  }
+  // const deleteTransaction = (id) => {
+  //   axios.delete(baseUrl + '/Transacciones/' + id).then(() => {
+  //     setActiveForm('disabled');
+  //   }).catch(() => {
+  //     alert('Error al eliminar la transacción');
+  //   });
+  // }
+
+  // const handleModify = (id) => {
+  //   setActiveForm('modify');
+  //   setValueToModify(transacciones.find((element) => element.transaccionId === id));
+  // }
 
   return (
     <div className="App">
@@ -129,7 +100,7 @@ function App() {
               models={modelos}
               concessionaires={concesionarios.map((element) => element.nombre)}
               clients={clientes.map((element) => element.nombre)}
-              onSubmit={(e) => handleSubmit(e)}/>
+              onSubmit={(e) => sendTransaction(e)}/>
           )
         }
         { activeForm === 'modify' && (
@@ -142,7 +113,7 @@ function App() {
             clients={[valueToModify.cliente.nombre]}
             date={valueToModify.fechaVenta}
             price={valueToModify.precioVenta}
-            onSubmit={(e) => handleSubmit(e)}
+            onSubmit={(e) => sendTransaction(e)}
           />
         )}
         { activeForm !== 'disabled' && (
