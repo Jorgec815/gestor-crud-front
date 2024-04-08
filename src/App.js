@@ -75,7 +75,7 @@ function App() {
     fetchVehiculos();
     fetchClientes();
     fetchConcesionarios();
-  },[]);
+  });
 
   const handleSubmit = async (e) => {
     console.log('Submit: ', e.target.elements);
