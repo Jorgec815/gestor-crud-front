@@ -1,7 +1,7 @@
 import axios from "axios";
 
 
-const apiurl = 'http://gestor-transacciones.somee.com';
+const apiurl = 'https://gestor-transacciones.somee.com';
 
 
 export const getTransacciones = async () => {
